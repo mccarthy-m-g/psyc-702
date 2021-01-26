@@ -1,0 +1,35 @@
+---
+title: "Sandbox"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# load packages
+library(tidyverse)
+
+# load mtcars dataset
+data("mtcars")
+
+# set knitr chunk options
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This is a sandbox to play around with the `reticulate` R package in order to learn Python and its interactions with R.
+
+# Installing packages with Conda
+
+Packages can be installed with Conda using the `reticulate::conda_install()` command:
+
+```{r eval=FALSE}
+reticulate::conda_install(packages = "pandas")
+```
+
+# Running Python code
+
+Python code can be run within a `python` code chunk. Objects created within the R environment can be accessed in a Python code chunk using `r.`.
+
+```{python}
+import pandas
+
+print(r.mtcars.head())
+```
