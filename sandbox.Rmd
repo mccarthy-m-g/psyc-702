@@ -4,13 +4,17 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-# load packages
+# Load packages
 library(tidyverse)
 
-# load mtcars dataset
+# Set reticulate environment
+library(reticulate)
+use_condaenv("r-reticulate-mne", required = TRUE)
+
+# Load mtcars dataset
 data("mtcars")
 
-# set knitr chunk options
+# Set knitr chunk options
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -33,3 +37,71 @@ import pandas
 
 print(r.mtcars.head())
 ```
+
+# MNE tutorial
+
+The following code comes from the [Overview of MEG/EEG analysis with MNE-Python](https://mne.tools/stable/auto_tutorials/intro/plot_10_overview.html#sphx-glr-auto-tutorials-intro-plot-10-overview-py) tutorial.
+
+## Loading data
+
+This tutorial uses an example dataset called “Sample” which contains EEG and MEG data from one subject performing an audiovisual experiment, along with structural MRI scans for that subject.
+
+```{python loading data}
+import os
+import numpy as np
+import mne
+
+# Get path to mne sample data folder
+sample_data_folder = mne.datasets.sample.data_path()
+
+# Get path to sample data for tutorial
+sample_data_raw_file = os.path.join(sample_data_folder, 'MEG', 'sample',
+                                    'sample_audvis_filt-0-40_raw.fif')
+
+# Read FIF data
+raw = mne.io.read_raw_fif(sample_data_raw_file)
+```
+
+You can get the basic details of a `Raw` object by printing it.
+
+```{python}
+print(raw)
+```
+
+More details are available by printing a `Raw` object's info attribute. The info attribute is a dictionary-like object that is preserved across Raw, Epochs, and Evoked objects; its data structure keeps track of channel locations, applied filters, projectors, and so forth.
+
+```{python}
+print(raw.info)
+```
+
+You can also convert a `Raw` object to a data frame with `to_data_frame()`.
+
+```{python}
+df_raw = raw.to_data_frame(long_format = True)
+```
+
+Data frames created in Python can also be accessed in R using the `py` object exported by `reticulate`.
+
+```{r}
+head(py$df_raw)
+```
+
+### Plotting
+
+`Raw` objects also have several built-in plotting methods. `plot_psd()` shows the power spectral density (PSD) for each sensor type. `plot()` plots raw sensor traces and is interactive, allowing scrolling, scaling, bad channel marking, annotation, projector toggling, etc. (but only in interactive Python sessions).
+
+```{python}
+raw.plot_psd(fmax=50)
+raw.plot(duration=5, n_channels=30)
+```
+
+These plots can be shown in the RStudio viewer pane by calling `plt.show()`.
+
+```{python, eval=FALSE}
+import matplotlib.pyplot as plt
+
+raw.plot_psd(fmax=50)
+plt.show()
+```
+
+## Preprocessing
